@@ -9,10 +9,11 @@ require 'fileutils'
 
 class MarkdownMailSender
 
-  def initialize(user, password, compose_dir: '~/email/compose',
+  def initialize(accounts={}, compose_dir: '~/email/compose',
        sent_dir: '~/email/sent', smtp_host: nil, from_domain: smtp_host)
+    
+    @accounts = accounts
 
-    @user, @password = user, password
     @smtp_host, @mail_from_domain = smtp_host, from_domain
 
     compose_dirpath = File.expand_path(compose_dir)
@@ -21,11 +22,10 @@ class MarkdownMailSender
 
     # scan the compose directory for email files to deliver
     
-    @messages = Dir.glob(File.join(compose_dirpath, '*.md')).map \
-                                                            do |msg_filepath|
-      
+    @messages = Dir.glob(File.join(compose_dirpath, '*.md')).map do |msg_filepath|
+
       s = File.read msg_filepath
-      
+
       regex = %r{
 
         (?<email>(?:.*<)?\w+(?:\.\w+)?@\S+>?){0}
@@ -40,7 +40,7 @@ class MarkdownMailSender
       }xm =~ s
 
       files = attachments.nil? ? [] : attachments.split.map(&:strip)
-      
+
       {
         filepath: msg_filepath, from: from, to: to, attachments: files,
         subject: subject, body_txt: body, 
@@ -54,8 +54,6 @@ class MarkdownMailSender
   def deliver_all()
 
     @messages.each.with_index do |x, i|
-
-      puts 'xx: ' + x.inspect
       
       raw_marker = "AUNIQUEMARKER"
       marker = "\n--#{raw_marker}"
@@ -95,8 +93,12 @@ EOF
 
       mailtext = a.join(marker + "\n") + marker + "--"
 
-      Net::SMTP.start(@smtp_host, 25, @mail_from_domain, @user, 
-                      @password, :login) do |smtp|
+      from = x[:from][/(?:.*<)?(\w+(?:\.\w+)?@\S+)>/,1]
+
+      user, password = from[/[^@]+/], @accounts[from]      
+
+      Net::SMTP.start(@smtp_host, 25, @mail_from_domain, user, 
+                      password, :login) do |smtp|
 
         smtp.send_message mailtext, from, to 
 
