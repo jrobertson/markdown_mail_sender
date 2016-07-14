@@ -29,7 +29,7 @@ class MarkdownMailSender
       regex = %r{
 
         (?<email>(?:.*<)?\w+(?:\.\w+)?@\S+>?){0}
-        (?<filepath>\s*[\w\/\.]+\s+){0}
+        (?<filepath>\s*[\w\/\.\-]+\s+){0}
 
         from:\s(?<from>\g<email>)\s+
         to:\s(?<to>\g<email>)\s+
@@ -83,7 +83,7 @@ Content-Type: text/html
 EOF
       
       a = [header, txt_part, html_part]
-      
+
       if x[:attachments].any? then
         
         attachments = x[:attachments].map {|x| file_part x}
@@ -93,7 +93,7 @@ EOF
 
       mailtext = a.join(marker + "\n") + marker + "--"
 
-      from = x[:from][/(?:.*<)?(\w+(?:\.\w+)?@\S+)>/,1]
+      from = x[:from][/(?:.*<)?(\w+(?:\.\w+)?@\S+[^>])/,1]
 
       user, password = from[/[^@]+/], @accounts[from]      
 

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'markdown_mail_sender'
-  s.version = '0.1.1'
+  s.version = '0.1.2'
   s.summary = 'Sends an email from a file directory containing a Markdown file representing the email message.'
   s.authors = ['James Robertson']
   s.files = Dir['lib/markdown_mail_sender.rb']
