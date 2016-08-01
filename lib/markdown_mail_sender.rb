@@ -11,7 +11,7 @@ class MarkdownMailSender
 
   def initialize(accounts={}, compose_dir: '~/email/compose',
        sent_dir: '~/email/sent', smtp_host: nil, from_domain: smtp_host)
-    
+
     @accounts = accounts
 
     @smtp_host, @mail_from_domain = smtp_host, from_domain
@@ -21,14 +21,14 @@ class MarkdownMailSender
     FileUtils.mkdir_p @sent_dir
 
     # scan the compose directory for email files to deliver
-    
+
     @messages = Dir.glob(File.join(compose_dirpath, '*.md')).map do |msg_filepath|
 
       s = File.read msg_filepath
 
       regex = %r{
 
-        (?<email>(?:.*<)?\w+(?:\.\w+)?@\S+>?){0}
+        (?<email>(?:.*<)?[^@]+@\S+>?){0}
         (?<filepath>\s*[\w\/\.\-]+\s+){0}
 
         from:\s(?<from>\g<email>)\s+
@@ -37,7 +37,7 @@ class MarkdownMailSender
         subject:\s+(?<subject> [^\n]+)\n
         (?<body> .*)
 
-      }xm =~ s
+      }xm =~ s      
 
       files = attachments.nil? ? [] : attachments.split.map(&:strip)
 
