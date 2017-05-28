@@ -2,8 +2,10 @@
 
 # file: markdown_mail_sender.rb
 
+
+require 'martile'
 require 'net/smtp'
-require 'rdiscount'
+require 'kramdown'
 require 'fileutils'
 
 
@@ -46,7 +48,7 @@ class MarkdownMailSender
       {
         filepath: msg_filepath, from: r[:from], to: r[:to], 
         attachments: files, subject: r[:subject], body_txt: r[:body], 
-        body_html: RDiscount.new(r[:body]).to_html
+        body_html: Kramdown::Document.new(Martile.new(r[:body]).to_html).to_html
       }      
 
     end
