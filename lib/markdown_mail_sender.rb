@@ -48,7 +48,8 @@ class MarkdownMailSender
       {
         filepath: msg_filepath, from: r[:from], to: r[:to], 
         attachments: files, subject: r[:subject], body_txt: r[:body], 
-        body_html: Kramdown::Document.new(Martile.new(r[:body]).to_html).to_html
+        body_html: Kramdown::Document.new(Martile.new(r[:body], 
+                                ignore_domainlabel: true).to_html).to_html
       }      
 
     end
